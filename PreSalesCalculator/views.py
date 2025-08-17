@@ -12,7 +12,7 @@ import datetime
 # Create your views here.
 
 def home(request):
-    referenceCapacity_model = ReferenceCapacity.objects.all()
+    referenceCapacity_model = ReferenceCapacity.objects.all().order_by('object_type')
     distinct_reference_object = ReferenceCapacity.objects.values_list('object_type', flat=True).distinct()
     context = {
         'reference_values':referenceCapacity_model,
