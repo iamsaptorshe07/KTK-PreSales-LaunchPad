@@ -25,15 +25,16 @@
   </div>
 </nav>
 
-<main class="container py-3">
+<main class="container py-1">
   <div class="row g-3">
-    <!-- Reference Capacity -->
+    <!-- Left Column: Reference + Infra Setup -->
     <div class="col-lg-3">
-      <h5>Reference Capacity</h5>
-      <small class="text-muted">** To change it connect admin **</small>
-      <div class="table-responsive">
+      <!-- Reference Capacity -->
+      <h5> <b> <u> Reference Capacity </u> </b> </h5>
+      <small class="text-muted">** To change it connect admin - Team - Data Enginner **</small>
+      <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
         <table class="table table-bordered table-sm table-hover align-middle text-center ref-capacity-table" id="referenceTable">
-          <thead class="table-dark">
+          <thead class="table-info">
             <tr>
               <th> Type </th>
               <th> Level </th>
@@ -48,18 +49,47 @@
               <td class="{{reference.level}}" id="reference-level-{{reference.object_type}}-{{reference.level}}">{{ reference.level }}</td>
               <td class="per_hour_capacity" id="reference-level-per-hour-capacity-{{reference.object_type}}-{{reference.level}}">{{ reference.per_hour_capacity }}</td>
               <td class="per_day_capacity" id="reference-per-day-capacity-{{reference.object_type}}-{{reference.level}}">
-              {{reference.required_days}}
+                {{reference.required_days}}
               </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+
+      <!-- Infra Setup Reference -->
+      <div class="mt-4">
+        <h5> <b> <u> Infrasetup Reference </u> </b> </h5>
+        <small class="text-muted">** To change it connect admin - Team - DevOps **</small>
+        <small class="text-muted">** WithSecurity Implementation It will add additional hours **</small>
+        <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+          <table class="table table-bordered table-sm align-middle text-center">
+            <thead class="table-info">
+              <tr>
+                <th>Object Type</th>
+                <th> Method </th>
+                <th> Hours Required For Single Object</th>
+                <th> Additional Complexity Hours</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for infraref in Infrasetup_reference %}
+              <tr>
+                <td id="infra-object-type-{{infraref.object_type}}">{{infraref.object_type}}</td>
+                <td id="infra-object-method-{{infraref.object_type}}-{{infraref.method}}">{{infraref.method}}</td>
+                <td id="infra-object-hour-{{infraref.object_type}}-{{infraref.method}}">{{infraref.hour_for_one_object}}</td>
+                <td id="infra-object-additional-hour-{{infraref.object_type}}-{{infraref.method}}">{{infraref.additional_complexity_hour}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <!-- Insert Data -->
+    <!-- Right Column -->
     <div class="col-lg-9">
-      <h5>Insert Data</h5>
+      <h5> <b> <u> Data Enginnering Calculator </u> </b></h5>
       <small class="text-muted">** Enter Your Values To Get Estimation **</small> 
       <form>
         <div class="table-responsive">
@@ -74,6 +104,7 @@
                 <th>Very Complex (10%)</th>
                 <th>No. of Resource</th>
                 <th>Automation (%)</th>
+                <th>Timelime (Hours) </th>
                 <th>Timeline (Days)</th>
               </tr>
             </thead>
@@ -83,46 +114,86 @@
                 <td id="object_type-{{distinct_object}}">{{ distinct_object }}</td>
                 <td id="total-count-{{distinct_object}}" onchange="distribute(this.id)"><input type="number" class="form-control form-control-sm num-6 total-count"></td>
                 <td id="easy-count-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 editable"></td>
-                <td id="medium-count-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 editable" readonly></td>
-                <td id="complex-count-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 editable" readonly></td>
+                <td id="medium-count-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 editable" readonly ></td>
+                <td id="complex-count-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 editable" readonly ></td>
                 <td id="very-complex-count-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 editable" readonly></td>
                 <td id="resource-count-{{distinct_object}}" onchange="calculate(this.id)"><input type="number" class="form-control form-control-sm num-6 resource-count"></td>
                 <td id="automation-percent-{{distinct_object}}" onchange="calculate(this.id)"><input type="number" class="form-control form-control-sm num-6 automation-percent"></td>
-                <td id="calculated-total-days-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 total-days" readonly></td>
+                <td id="calculated-total-hours-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 total-hours" readonly></td>
+                <td id="calculated-total-days-{{distinct_object}}" onchange="calculateTotalDays()"><input type="number" class="form-control form-control-sm num-6 total-days" readonly></td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
-        <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="toggleReadonly">
-        <label class="form-check-label" for="checkCheckedDisabled">
-        Disabled Auto Distribution
-        </label>
+              
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="toggleReadonly">
+            <label class="form-check-label" for="checkCheckedDisabled">
+              Disabled Auto Distribution
+            </label>
+          </div>
         </div>
+
+        <!-- Workspace Deployment Table -->
+        <div class="mt-4">
+          <h5> <b> <u> Infra Deployment Calculator </u> </b> </h5>
+          <small class="text-muted">** Choose method and workspace count **</small>
+          <div class="table-responsive">
+            <table class="table table-bordered table-sm align-middle text-center">
+              <thead class="table-secondary">
+                 <tr>
+          <th style="width:16%;">Infra Object Type</th>
+          <th style="width:10%;">No Of Infra Object To Be Deployed</th>
+          <th style="width:20%;">Method</th> <!-- Wider for dropdown -->
+          <th style="width:13.5%; white-space:normal; font-size:12px;">
+            With Security & Other Implementation <br>(Hours)
+          </th>
+          <th style="width:13.5%; white-space:normal; font-size:12px;">
+            Without Security & Other Implementation <br>(Hours)
+          </th>
+          <th style="width:13.5%; white-space:normal; font-size:12px;">
+            With Security & Other Implementation <br>(Days)
+          </th>
+          <th style="width:13.5%; white-space:normal; font-size:12px;">
+            Without Security & Other Implementation <br>(Days)
+          </th>
+        </tr>
+              </thead>
+              <tbody>
+                {% for unique_infra_obj in UniqueInfraObject %}
+                <tr>
+                  <td> {{unique_infra_obj}} </td>
+                  <td>
+                    <input type="number" class="form-control form-control-sm num-10" id="infra-obj-count-{{unique_infra_obj}}" onchange="infrasetUpCalculator(this.id);">
+                  </td>
+                  <td>
+                    <select class="form-select form-select-sm" id="infra-deployment-method-{{unique_infra_obj}}" onchange="infrasetUpCalculator(this.id)">
+                      <option value="" selected disabled>-- Select Method --</option>
+                      {% for unique_method in UniqueInfraSetupMethod %}
+                      <option value="{{unique_method}}">{{unique_method}}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td id="infra-setup-{{unique_infra_obj}}-with-security-hours"></td>
+                  <td id="infra-setup-{{unique_infra_obj}}-without-security-hours"></td>
+                  <td id="infra-setup-{{unique_infra_obj}}-with-security-days"></td>
+                  <td id="infra-setup-{{unique_infra_obj}}-without-security-days"></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <br>
-      <div class="row mb-3">
-  <div class="col-md-6">
-    <label for="exampleInputEmail1" class="form-label">No Of Workspace to be deployed</label>
-    <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-  </div>
-  <div class="col-md-6">
-    <label for="exampleInputPassword1" class="form-label">Prod Deployment Upto No Of Workspace</label>
-    <input type="number" class="form-control" id="exampleInputPassword1">
-  </div>
-</div>
-
-<div class="mb-3 form-check">
-  <input type="checkbox" class="form-check-input" id="exampleCheck1">
-  <label class="form-check-label" for="exampleCheck1">Security Setup Required</label>
-</div>
-<div class="d-grid gap-2">
-  <button class="btn btn-primary" type="button">Generate Quick Hours</button>
-
-</div>
+        <div class="alert alert-warning" role="alert">
+            Total Hours Data Engineering: <span id="total-hours-DE"> </span>
+        </div> 
+        <div class="alert alert-warning" role="alert">
+            Total Hours Infrasetup: <span id="total-hours-Infra"> </span>
+        </div> <!-- <div class="d-grid gap-2">
+          <button class="btn btn-primary" type="button">Generate Detailed Estimate</button>
+        </div> -->
       </form>
     </div>
-
   </div>
 </main>
 
@@ -134,111 +205,132 @@
 
 
 <!-- Javascript Code -->
-<script>
 
+<!-- Script to calculate total days-->
+ <script>
+// Function to calculate overall total days across all rows
+function calculateTotalDays() {
+  console.log("Total hour calculation called");
+  let totalDays = 0;
 
+  // Loop through all inputs with class "total-days"
+  document.querySelectorAll(".total-days").forEach(input => {
+    let val = parseFloat(input.value) || 0; // If empty, treat as 0
+    totalDays += val;
+  });
 
-// Function to disribute
-function distribute(id)
-{
-    let td = document.getElementById(id);
-    console.log("Got Id",id)
-    // find the input inside this td
-    let input = td.querySelector("input");
-    // get the value of the input
-    let total_count = input.value;
-    
-
-    // Performing Calculation
-    let easy_count = total_count * 0.3;
-    let medium_count = total_count * 0.4;
-    let complex_count = total_count * 0.2
-    let very_complex_count = total_count * 0.1;
-
-    let easy_count_id = `easy-count-${id.split('-').pop()}`
-    let medium_count_id =`medium-count-${id.split('-').pop()}`
-    let complex_count_id =`complex-count-${id.split('-').pop()}`
-    let very_complex_count_id = `very-complex-count-${id.split('-').pop()}`
-    
-    // Set Value
-    let easy_td = document.getElementById(easy_count_id)
-    easy_td.querySelector('input').value = easy_count;
-    let medium_td = document.getElementById(medium_count_id)
-    medium_td.querySelector('input').value = medium_count;
-    let complex_td = document.getElementById(complex_count_id)
-    complex_td.querySelector('input').value = complex_count;
-    let very_complex_td = document.getElementById(very_complex_count_id)
-    very_complex_td.querySelector('input').value = very_complex_count;
-}
-
-// Function to calculate total days required
-function calculate(id)
-{
-
-    console.log("ID Received",id)
-    let object_type = id.split('-').pop()
-    let total_resource = document.getElementById(`resource-count-${object_type}`).querySelector('input').value;
-    console.log("Total Resource Entered",total_resource)
-
-    // Get Actual Input Count
-    let easy_count_id = document.getElementById(`easy-count-${object_type}`).querySelector('input').value
-    let medium_count_id = document.getElementById(`medium-count-${object_type}`).querySelector('input').value
-    let complex_count_id =document.getElementById(`complex-count-${object_type}`).querySelector('input').value
-    let very_complex_count_id = document.getElementById(`very-complex-count-${object_type}`).querySelector('input').value
-
-    console.log("Easy Input",easy_count_id)
-    console.log("Medium Input",medium_count_id)
-    console.log("Complex Input",complex_count_id)
-    console.log("Very Complex Input",very_complex_count_id) 
-    
-    // Get Reference value
-    let rf_easy_count = Number(document.getElementById(`reference-per-day-capacity-${object_type}-Easy`).textContent)
-    let rf_medium_count =Number(document.getElementById(`reference-per-day-capacity-${object_type}-Medium`).textContent)
-    let rf_complex_count =Number(document.getElementById(`reference-per-day-capacity-${object_type}-Complex`).textContent)
-    let rf_very_complex_count = Number(document.getElementById(`reference-per-day-capacity-${object_type}-Very Complex`).textContent)
-
-    console.log("Easy Reference",rf_easy_count)
-    console.log("Medium Refrecne",rf_medium_count)
-    console.log("Complex Reference",rf_complex_count)
-    console.log("Very Complex Reference",rf_very_complex_count)
-
-    let total_days_required = (easy_count_id/(rf_easy_count*total_resource)) + (medium_count_id/(rf_medium_count*total_resource)) + (complex_count_id/(rf_complex_count*total_resource)) + (very_complex_count_id/(rf_very_complex_count*total_resource))
-    console.log("Initial Calculation",Math.ceil(total_days_required))
-    let total_days_required_object = document.getElementById(`calculated-total-days-${object_type}`)
-
-    let automation_percent = document.getElementById(`automation-percent-${object_type}`).querySelector('input').value
-
-    if (automation_percent === null || automation_percent == 0) 
-    {
-       console.log("Got Automation 0 or null")
-       total_days_required_object.querySelector('input').value = Math.ceil(total_days_required)
-    }
-    else
-    {
-       console.log("Got Automation Value")
-       console.log("Got Automation Percent",automation_percent)
-       console.log("Total Days Requried",Math.ceil(total_days_required))
-       let percent_value = Math.ceil(total_days_required) * (automation_percent/100);
-       let after_automation = Math.ceil(total_days_required) - percent_value
-       total_days_required_object.querySelector('input').value = Math.ceil(after_automation) 
-    }
-
+  console.log("Total Hours",totalDays);
+  // Update the span with total
+  document.getElementById("total-hours-DE").textContent = totalDays;
 }
 
 </script>
 <script>
+// Function to distribute
+function distribute(id) {
+    let td = document.getElementById(id);
+    let input = td.querySelector("input");
+    let total_count = input.value;
+
+    // Performing Calculation
+    let easy_count = total_count * 0.3;
+    let medium_count = total_count * 0.4;
+    let complex_count = total_count * 0.2;
+    let very_complex_count = total_count * 0.1;
+
+    let easy_count_id = `easy-count-${id.split('-').pop()}`;
+    let medium_count_id = `medium-count-${id.split('-').pop()}`;
+    let complex_count_id = `complex-count-${id.split('-').pop()}`;
+    let very_complex_count_id = `very-complex-count-${id.split('-').pop()}`;
+    
+    // Set Value
+    document.getElementById(easy_count_id).querySelector('input').value = easy_count;
+    document.getElementById(medium_count_id).querySelector('input').value = medium_count;
+    document.getElementById(complex_count_id).querySelector('input').value = complex_count;
+    document.getElementById(very_complex_count_id).querySelector('input').value = very_complex_count;
+}
+
+// Function to calculate total days required
+function calculate(id) {
+    let object_type = id.split('-').pop();
+    let total_resource = document.getElementById(`resource-count-${object_type}`).querySelector('input').value;
+
+    // Get Actual Input Count
+    let easy_count_id = document.getElementById(`easy-count-${object_type}`).querySelector('input').value;
+    let medium_count_id = document.getElementById(`medium-count-${object_type}`).querySelector('input').value;
+    let complex_count_id = document.getElementById(`complex-count-${object_type}`).querySelector('input').value;
+    let very_complex_count_id = document.getElementById(`very-complex-count-${object_type}`).querySelector('input').value;
+
+    // Get Reference value in days
+    let rf_easy_count = Number(document.getElementById(`reference-per-day-capacity-${object_type}-Easy`).textContent);
+    let rf_medium_count = Number(document.getElementById(`reference-per-day-capacity-${object_type}-Medium`).textContent);
+    let rf_complex_count = Number(document.getElementById(`reference-per-day-capacity-${object_type}-Complex`).textContent);
+    let rf_very_complex_count = Number(document.getElementById(`reference-per-day-capacity-${object_type}-Very Complex`).textContent);
+
+    let total_days_required = (easy_count_id/(rf_easy_count*total_resource)) + 
+                              (medium_count_id/(rf_medium_count*total_resource)) + 
+                              (complex_count_id/(rf_complex_count*total_resource)) + 
+                              (very_complex_count_id/(rf_very_complex_count*total_resource));
+
+    let total_days_required_object = document.getElementById(`calculated-total-days-${object_type}`);
+    let automation_percent = document.getElementById(`automation-percent-${object_type}`).querySelector('input').value;
+
+    if (!automation_percent || automation_percent == 0) {
+       total_days_required_object.querySelector('input').value = Math.ceil(total_days_required);
+    } else {
+       let percent_value = Math.ceil(total_days_required) * (automation_percent/100);
+       let after_automation = Math.ceil(total_days_required) - percent_value;
+       total_days_required_object.querySelector('input').value = Math.ceil(after_automation);
+    }
+    calculateTotalDays();
+}
+</script>
+
+
+<!-- Script to control autodistribute -->
+<script>
 document.getElementById("toggleReadonly").addEventListener("change", function() {
-  const inputs = document.querySelectorAll(".editable"); // all inputs with class
+  const inputs = document.querySelectorAll(".editable");
   inputs.forEach(input => {
     if (this.checked) {
-      console.log("I am called")
-      input.removeAttribute("readonly"); // make editable
+      input.removeAttribute("readonly");
     } else {
-      input.setAttribute("readonly", true); // make readonly
+      input.setAttribute("readonly", true);
     }
   });
 });
 </script>
 
+<script>
+  function infrasetUpCalculator(id)
+  {
+    console.log("Infra Id Received",id)
+    let infra_object_type = id.split('-').pop();
+    console.log("Infra Type",infra_object_type);
+
+    // Get the entered number
+    let entered_input_number = document.getElementById(`infra-obj-count-${infra_object_type}`).value;
+    console.log("Entered Input Value",entered_input_number)
+    let method = document.getElementById(`infra-deployment-method-${infra_object_type}`).value;
+    console.log("Entered Method",method)
+
+    // Get Reference Hour
+    let reference_hour = Number(document.getElementById(`infra-object-hour-${infra_object_type}-${method}`).textContent)
+    console.log("Reference Hour is",reference_hour)
+
+    let reference_additional_hour = Number(document.getElementById(`infra-object-additional-hour-${infra_object_type}-${method}`).textContent)
+    console.log("Reference Additionl Hour",reference_additional_hour)
+
+
+    let without_security_hours = (entered_input_number * reference_hour)
+    let with_security_hours = (entered_input_number * (reference_hour + reference_additional_hour))
+    let without_security_days = Math.ceil(without_security_hours/8)
+    let with_security_days = Math.ceil(with_security_hours/8)
+
+    document.getElementById(`infra-setup-${infra_object_type}-without-security-hours`).textContent = without_security_hours;
+    document.getElementById(`infra-setup-${infra_object_type}-with-security-hours`).textContent = with_security_hours;
+    document.getElementById(`infra-setup-${infra_object_type}-without-security-days`).textContent = without_security_days;
+    document.getElementById(`infra-setup-${infra_object_type}-with-security-days`).textContent = with_security_days;}
+</script>
 </body>
 </html>

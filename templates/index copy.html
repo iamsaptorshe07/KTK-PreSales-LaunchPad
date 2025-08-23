@@ -1,0 +1,297 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Koantek - PreSales LaunchPad</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">  
+  <style>
+    .num-6 { max-width: 100px; }
+    .num-2 { max-width: 50px; }
+    .object-type-input { min-width: 180px; }
+    .ref-capacity-table td, .ref-capacity-table th { font-size: 0.85rem; padding: 0.4rem; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" href="#">
+      <img src="{% static 'logo/koantekLogo.jpeg' %}" alt="Logo" class="me-2" style="height:40px;">
+      Koantek Pre-Sales LaunchPad
+    </a>
+  </div>
+</nav>
+
+<main class="container py-3">
+  <div class="row g-3">
+    <!-- Reference Capacity -->
+    <div class="col-lg-3">
+      <h5>Reference Capacity</h5>
+      <small class="text-muted">** To change it connect admin - Team - Data Enginner **</small>
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm table-hover align-middle text-center ref-capacity-table" id="referenceTable">
+          <thead class="table-dark">
+            <tr>
+              <th> Type </th>
+              <th> Level </th>
+              <th> Hrs/Obj </th>
+              <th> Migration/Day </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for reference in reference_values %}
+            <tr class="reference-{{ reference.object_type }}">
+              <td>{{ reference.object_type }}</td>
+              <td class="{{reference.level}}" id="reference-level-{{reference.object_type}}-{{reference.level}}">{{ reference.level }}</td>
+              <td class="per_hour_capacity" id="reference-level-per-hour-capacity-{{reference.object_type}}-{{reference.level}}">{{ reference.per_hour_capacity }}</td>
+              <td class="per_day_capacity" id="reference-per-day-capacity-{{reference.object_type}}-{{reference.level}}">
+              {{reference.required_days}}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Insert Data -->
+    <div class="col-lg-9">
+      <h5>Insert Data -  Calculator</h5>
+      <small class="text-muted">** Enter Your Values To Get Estimation **</small> 
+      <form>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm align-middle text-center" id="dataTable">
+            <thead class="table-secondary">
+              <tr>
+                <th>Object Type</th>
+                <th>Total Count</th>
+                <th>Easy (30%)</th>
+                <th>Medium (40%)</th>
+                <th>Complex (20%)</th>
+                <th>Very Complex (10%)</th>
+                <th>No. of Resource</th>
+                <th>Automation (%)</th>
+                <th>Timeline (Days)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for distinct_object in reference_objects %}
+              <tr class="input-{{distinct_object}}">
+                <td id="object_type-{{distinct_object}}">{{ distinct_object }}</td>
+                <td id="total-count-{{distinct_object}}" onchange="distribute(this.id)"><input type="number" class="form-control form-control-sm num-6 total-count"></td>
+                <td id="easy-count-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 editable"></td>
+                <td id="medium-count-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 editable" readonly></td>
+                <td id="complex-count-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 editable" readonly></td>
+                <td id="very-complex-count-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 editable" readonly></td>
+                <td id="resource-count-{{distinct_object}}" onchange="calculate(this.id)"><input type="number" class="form-control form-control-sm num-6 resource-count"></td>
+                <td id="automation-percent-{{distinct_object}}" onchange="calculate(this.id)"><input type="number" class="form-control form-control-sm num-6 automation-percent"></td>
+                <td id="calculated-total-days-{{distinct_object}}"><input type="number" class="form-control form-control-sm num-6 total-days" readonly></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" id="toggleReadonly">
+        <label class="form-check-label" for="checkCheckedDisabled">
+        Disabled Auto Distribution
+        </label>
+        </div>
+        </div>
+        <br>
+      <div class="row mb-3">
+</div>
+<div class="mt-4">
+  <h5> Infrasetup Reference</h5>
+  <small class="text-muted">** To change it connect admin - Team - DevOps **</small>
+ <div class="table-responsive">
+    <table class="table table-bordered table-sm align-middle text-center">
+      <thead class="table-secondary">
+        <tr>
+          <th>Object Type</th>
+          <th> Method </th>
+          <th> Hours Required For Single Object</th>
+          <th> Additional Complexity Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+         {% for infraref in Infrasetup_reference %}
+        <tr>
+          <td>
+            {{infraref.object_type}}
+          </td>
+          <td>
+            {{infraref.method}}
+          </td>
+          <td>
+            {{infraref.hour_for_one_object}}
+          </td>
+          <td>
+            {{infraref.additional_complexity_hour}}
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+  </div></div>
+<!-- New Workspace Deployment Table -->
+<div class="mt-4">
+  <h5>Workspace Deployment</h5>
+  <small class="text-muted">** Choose method and workspace count **</small>
+  <div class="table-responsive">
+    <table class="table table-bordered table-sm align-middle text-center">
+      <thead class="table-secondary">
+        <tr>
+          <th>No. of Workspaces to be deployed</th>
+          <th>Method</th>
+          <th>With Security & Implementation</th>
+          <th>Without  Security & Other Implementation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <input type="number" class="form-control form-control-sm num-10" id="workspace-count">
+          </td>
+          <td>
+            <select class="form-select form-select-sm" id="deployment-method">
+              <option value="" selected disabled>-- Select Method --</option>
+              <option value="Terraform">Terraform</option>
+              <option value="Manual">Manual</option>
+            </select>
+          </td>
+          <td>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="d-grid gap-2">
+  <button class="btn btn-primary" type="button">Generate Quick Hours</button>
+</div>
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<footer class="text-center bg-primary text-white py-3 mt-4">
+  <div class="container">
+    <p class="mb-0">&copy; 2025 Koantek. All rights reserved.</p>
+  </div>
+</footer>
+
+
+<!-- Javascript Code -->
+<script>
+
+
+
+// Function to disribute
+function distribute(id)
+{
+    let td = document.getElementById(id);
+    console.log("Got Id",id)
+    // find the input inside this td
+    let input = td.querySelector("input");
+    // get the value of the input
+    let total_count = input.value;
+    
+
+    // Performing Calculation
+    let easy_count = total_count * 0.3;
+    let medium_count = total_count * 0.4;
+    let complex_count = total_count * 0.2
+    let very_complex_count = total_count * 0.1;
+
+    let easy_count_id = `easy-count-${id.split('-').pop()}`
+    let medium_count_id =`medium-count-${id.split('-').pop()}`
+    let complex_count_id =`complex-count-${id.split('-').pop()}`
+    let very_complex_count_id = `very-complex-count-${id.split('-').pop()}`
+    
+    // Set Value
+    let easy_td = document.getElementById(easy_count_id)
+    easy_td.querySelector('input').value = easy_count;
+    let medium_td = document.getElementById(medium_count_id)
+    medium_td.querySelector('input').value = medium_count;
+    let complex_td = document.getElementById(complex_count_id)
+    complex_td.querySelector('input').value = complex_count;
+    let very_complex_td = document.getElementById(very_complex_count_id)
+    very_complex_td.querySelector('input').value = very_complex_count;
+}
+
+// Function to calculate total days required
+function calculate(id)
+{
+
+    console.log("ID Received",id)
+    let object_type = id.split('-').pop()
+    let total_resource = document.getElementById(`resource-count-${object_type}`).querySelector('input').value;
+    console.log("Total Resource Entered",total_resource)
+
+    // Get Actual Input Count
+    let easy_count_id = document.getElementById(`easy-count-${object_type}`).querySelector('input').value
+    let medium_count_id = document.getElementById(`medium-count-${object_type}`).querySelector('input').value
+    let complex_count_id =document.getElementById(`complex-count-${object_type}`).querySelector('input').value
+    let very_complex_count_id = document.getElementById(`very-complex-count-${object_type}`).querySelector('input').value
+
+    console.log("Easy Input",easy_count_id)
+    console.log("Medium Input",medium_count_id)
+    console.log("Complex Input",complex_count_id)
+    console.log("Very Complex Input",very_complex_count_id) 
+    
+    // Get Reference value
+    let rf_easy_count = Number(document.getElementById(`reference-per-day-capacity-${object_type}-Easy`).textContent)
+    let rf_medium_count =Number(document.getElementById(`reference-per-day-capacity-${object_type}-Medium`).textContent)
+    let rf_complex_count =Number(document.getElementById(`reference-per-day-capacity-${object_type}-Complex`).textContent)
+    let rf_very_complex_count = Number(document.getElementById(`reference-per-day-capacity-${object_type}-Very Complex`).textContent)
+
+    console.log("Easy Reference",rf_easy_count)
+    console.log("Medium Refrecne",rf_medium_count)
+    console.log("Complex Reference",rf_complex_count)
+    console.log("Very Complex Reference",rf_very_complex_count)
+
+    let total_days_required = (easy_count_id/(rf_easy_count*total_resource)) + (medium_count_id/(rf_medium_count*total_resource)) + (complex_count_id/(rf_complex_count*total_resource)) + (very_complex_count_id/(rf_very_complex_count*total_resource))
+    console.log("Initial Calculation",Math.ceil(total_days_required))
+    let total_days_required_object = document.getElementById(`calculated-total-days-${object_type}`)
+
+    let automation_percent = document.getElementById(`automation-percent-${object_type}`).querySelector('input').value
+
+    if (automation_percent === null || automation_percent == 0) 
+    {
+       console.log("Got Automation 0 or null")
+       total_days_required_object.querySelector('input').value = Math.ceil(total_days_required)
+    }
+    else
+    {
+       console.log("Got Automation Value")
+       console.log("Got Automation Percent",automation_percent)
+       console.log("Total Days Requried",Math.ceil(total_days_required))
+       let percent_value = Math.ceil(total_days_required) * (automation_percent/100);
+       let after_automation = Math.ceil(total_days_required) - percent_value
+       total_days_required_object.querySelector('input').value = Math.ceil(after_automation) 
+    }
+
+}
+
+</script>
+<script>
+document.getElementById("toggleReadonly").addEventListener("change", function() {
+  const inputs = document.querySelectorAll(".editable"); // all inputs with class
+  inputs.forEach(input => {
+    if (this.checked) {
+      console.log("I am called")
+      input.removeAttribute("readonly"); // make editable
+    } else {
+      input.setAttribute("readonly", true); // make readonly
+    }
+  });
+});
+</script>
+
+</body>
+</html>
