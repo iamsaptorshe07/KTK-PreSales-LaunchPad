@@ -185,7 +185,9 @@
           </div>
         </div>
         <div class="alert alert-warning" role="alert">
-            Total Hours Data Engineering: <span id="total-hours-DE"> </span>
+            Total Hours Data Engineering: <b> <span id="total-hours-DE"> </span> </b>
+            <br>
+            Total Days Data Engineering: <b> <span id="total-days-DE"> </span></b>
         </div> 
         <div class="alert alert-warning" role="alert">
             Total Hours Infrasetup: <span id="total-hours-Infra"> </span>
@@ -209,19 +211,25 @@
 <!-- Script to calculate total days-->
  <script>
 // Function to calculate overall total days across all rows
-function calculateTotalDays() {
-  console.log("Total hour calculation called");
+function calculateTotalDaysHours() {
   let totalDays = 0;
+  let totalHours = 0
+
+  document.querySelectorAll(".total-hours").forEach(input => {
+    let val = parseFloat(input.value) || 0; // If empty, treat as 0
+    totalHours += val;
+  });
+
+  document.getElementById("total-hours-DE").textContent = totalHours;
+
 
   // Loop through all inputs with class "total-days"
   document.querySelectorAll(".total-days").forEach(input => {
     let val = parseFloat(input.value) || 0; // If empty, treat as 0
     totalDays += val;
   });
-
-  console.log("Total Hours",totalDays);
   // Update the span with total
-  document.getElementById("total-hours-DE").textContent = totalDays;
+  document.getElementById("total-days-DE").textContent = totalDays;
 }
 
 </script>
@@ -229,9 +237,10 @@ function calculateTotalDays() {
 // Function to distribute
 function distribute(id) {
     let td = document.getElementById(id);
+    console.log("Object Input Entered Id",id);
     let input = td.querySelector("input");
     let total_count = input.value;
-
+    let object_type = id.split('-').pop();
     // Performing Calculation
     let easy_count = total_count * 0.3;
     let medium_count = total_count * 0.4;
@@ -242,12 +251,27 @@ function distribute(id) {
     let medium_count_id = `medium-count-${id.split('-').pop()}`;
     let complex_count_id = `complex-count-${id.split('-').pop()}`;
     let very_complex_count_id = `very-complex-count-${id.split('-').pop()}`;
+    let total_hours_reference_id = `calculated-total-hours-${id.split('-').pop()}`
+    // console.log("Total Hours Reference Id",total_hours_reference_id);
+
+    // Get Reference Level Per Hour Capacity
+    let easy_reference_hour = document.getElementById(`reference-level-per-hour-capacity-${object_type}-Easy`).textContent
+    let medium_reference_hour = document.getElementById(`reference-level-per-hour-capacity-${object_type}-Medium`).textContent
+    let complex_referene_hour = document.getElementById(`reference-level-per-hour-capacity-${object_type}-Complex`).textContent
+    let very_complex_reference_hour = document.getElementById(`reference-level-per-hour-capacity-${object_type}-Very Complex`).textContent
+
     
+    let total_hours = (easy_count * easy_reference_hour) + (medium_count * medium_reference_hour) + (complex_count * complex_referene_hour) + (very_complex_count * very_complex_reference_hour)
+    console.log("Total Hours",total_hours)
+
     // Set Value
     document.getElementById(easy_count_id).querySelector('input').value = easy_count;
     document.getElementById(medium_count_id).querySelector('input').value = medium_count;
     document.getElementById(complex_count_id).querySelector('input').value = complex_count;
     document.getElementById(very_complex_count_id).querySelector('input').value = very_complex_count;
+    document.getElementById(total_hours_reference_id).querySelector('input').value = total_hours;
+
+    calculateTotalDaysHours();
 }
 
 // Function to calculate total days required
@@ -282,7 +306,7 @@ function calculate(id) {
        let after_automation = Math.ceil(total_days_required) - percent_value;
        total_days_required_object.querySelector('input').value = Math.ceil(after_automation);
     }
-    calculateTotalDays();
+    calculateTotalDaysHours();
 }
 </script>
 
